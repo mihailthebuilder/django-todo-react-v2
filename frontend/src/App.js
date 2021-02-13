@@ -86,7 +86,7 @@ const App = () => {
     toggle();
     if (item.id) {
       axios
-        .put(`http://localhost:8000/api/todos/${item.id}`, item)
+        .put(`http://localhost:8000/api/todos/${item.id}/`, item)
         .then((res) => refreshList());
     } else {
       axios
@@ -96,7 +96,7 @@ const App = () => {
   };
   const handleDelete = (item) => {
     axios
-      .delete(`http://localhost:8000/api/todos/${item.id}`)
+      .delete(`http://localhost:8000/api/todos/${item.id}/`)
       .then((res) => refreshList());
   };
   const createItem = () => {
