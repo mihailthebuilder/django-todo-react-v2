@@ -2,10 +2,6 @@ import { useState, useEffect } from "react";
 import CustomModal from "./components/Modal.js";
 import axios from "axios";
 
-const headers = {
-  "Content-Type": "application/json",
-};
-
 const App = () => {
   const [viewCompleted, setViewCompleted] = useState(false);
   const [todoList, setTodoList] = useState([]);
@@ -18,7 +14,7 @@ const App = () => {
 
   const refreshList = () => {
     axios
-      .get("http://localhost:8000/api/todos/", { headers: headers })
+      .get("http://localhost:8000/api/todos/")
       .then((res) => setTodoList(res.data))
       .catch((err) => console.log(err));
   };
