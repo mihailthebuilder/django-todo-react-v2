@@ -1,36 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CustomModal from "./components/Modal.js";
+import axios from "axios";
 
-const todoItems = [
-  {
-    id: 1,
-    title: "Go to Market",
-    description: "Buy ingredients to prepare dinner",
-    completed: true,
-  },
-  {
-    id: 2,
-    title: "Study",
-    description: "Read Algebra and History textbook for upcoming test",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Sally's books",
-    description: "Go to library to rent sally's books",
-    completed: true,
-  },
-  {
-    id: 4,
-    title: "Article",
-    description: "Write article on how to use django with react",
-    completed: false,
-  },
-];
+const headers = {
+  "Content-Type": "application/json",
+};
 
 const App = () => {
   const [viewCompleted, setViewCompleted] = useState(false);
-  const [todoList, setTodoList] = useState(todoItems);
+  const [todoList, setTodoList] = useState([]);
   const [modal, setModal] = useState(false);
   const [activeItem, setActiveItem] = useState({
     title: "",
@@ -38,31 +16,16 @@ const App = () => {
     completed: false,
   });
 
-  const toggle = () => {
-    setModal((previousValue) => !previousValue);
+  const refreshList = () => {
+    axios
+      .get("http://localhost:8000/api/todos/", { headers: headers })
+      .then((res) => setTodoList(res.data))
+      .catch((err) => console.log(err));
   };
 
-  const handleSubmit = (item) => {
-    toggle();
-    alert("save" + JSON.stringify(item));
-  };
-  const handleDelete = (item) => {
-    alert("delete" + JSON.stringify(item));
-  };
-  const createItem = () => {
-    const item = {
-      title: "",
-      description: "",
-      completed: false,
-    };
-
-    setActiveItem(item);
-    toggle();
-  };
-  const editItem = (item) => {
-    setActiveItem(item);
-    toggle();
-  };
+  useEffect(() => {
+    refreshList();
+  }, []);
 
   const displayCompleted = (status) => setViewCompleted(status);
 
@@ -79,7 +42,7 @@ const App = () => {
           onClick={() => displayCompleted(false)}
           className={viewCompleted ? "" : "active"}
         >
-          Incomplete
+          incomplete
         </span>
       </div>
     );
@@ -113,6 +76,42 @@ const App = () => {
         </span>
       </li>
     ));
+  };
+
+  const toggle = () => {
+    setModal((previousValue) => !previousValue);
+  };
+
+  const handleSubmit = (item) => {
+    toggle();
+    if (item.id) {
+      axios
+        .put(`http://localhost:8000/api/todos/${item.id}`, item)
+        .then((res) => refreshList());
+    } else {
+      axios
+        .post("http://localhost:8000/api/todos/", item)
+        .then((res) => refreshList());
+    }
+  };
+  const handleDelete = (item) => {
+    axios
+      .delete(`http://localhost:8000/api/todos/${item.id}`)
+      .then((res) => refreshList());
+  };
+  const createItem = () => {
+    const item = {
+      title: "",
+      description: "",
+      completed: false,
+    };
+
+    setActiveItem(item);
+    toggle();
+  };
+  const editItem = (item) => {
+    setActiveItem(item);
+    toggle();
   };
 
   return (
